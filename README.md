@@ -14,7 +14,9 @@ I've been developing since my 14 years old, from game development, mobile develo
 
 <a href="https://www.twitter.com/edgeorgie_" target="_blank" rel="noreferrer"><img
 src="https://img.shields.io/twitter/follow/edgeorgie_?logo=twitter&style=for-the-badge&color=6366f1&labelColor=0f172a"
-/></a><a href="https://www.github.com/edgeorgie" target="_blank" rel="noreferrer"><img
+/></a>
+![](https://komarev.com/ghpvc/?username=edgeorgie&color=blueviolet&style=for-the-badge&color=6366f1)
+<a href="https://www.github.com/edgeorgie" target="_blank" rel="noreferrer"><img
 src="https://img.shields.io/github/followers/edgeorgie?logo=github&style=for-the-badge&color=6366f1&labelColor=0f172a" /></a>
 
 ### Skills
