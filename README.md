@@ -1,7 +1,7 @@
-Hi 👋 My name is Edwin
+Hi 👋, my name is Edwin
 ======================
 
-Frontend Developer & UI/UX Designer
+Frontend Developer at Vansa & UI/UX Designer (freelance)
 -----------------------------------
 
 I've been developing since my 14 years old, from game development to web fullstack development. I have one year of experience working as a freelancer in frontend projects with React. I'm self-taught and former Platzi student.
