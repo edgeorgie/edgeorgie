@@ -19,6 +19,14 @@ src="https://img.shields.io/twitter/follow/edgeorgie_?logo=twitter&style=for-the
 <a href="https://www.github.com/edgeorgie" target="_blank" rel="noreferrer"><img
 src="https://img.shields.io/github/followers/edgeorgie?logo=github&style=for-the-badge&color=6366f1&labelColor=0f172a" /></a>
 
+### My top projects
+
+* [Tesla clone](https://tesla-clone-page.vercel.app/) | React, Redux, Sass.
+* [Disney+ clone](https://disney-plus-clone-five.vercel.app/) | React, Redux, Sass.
+* [GPT3 - fic startup](https://gpt-3-jade.vercel.app/) | React, Sass.
+* [Modern restaurant](https://restaurant-edgeorgie.vercel.app/) | React, Sass.
+* [Google docs clone]() | Next.js, Tailwind, Firebase.
+
 ### Skills
 
 <p align="left">
