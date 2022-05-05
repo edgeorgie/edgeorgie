@@ -8,7 +8,7 @@ I've been developing since my 14 years old, from game development, mobile develo
 
 * 🌍  I'm based in Barranquilla, Colombia.
 * ✉️  You can contact me at [ed.jorge1122@gmail.com](mailto:ed.jorge1122@gmail.com)
-* 🚀  I'm currently working on [Vansa](http://creador.vansa.co)
+* 🚀  I'm currently working at [Vansa](http://creador.vansa.co)
 * 🤝  I'm open to collaborating on Javascript projects, especially, with React.
 * ⚡  I never stop learning and creating.
 
