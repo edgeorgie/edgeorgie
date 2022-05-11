@@ -6,7 +6,7 @@ Frontend Developer at Vansa & UI/UX Designer (freelance)
 
 I've been developing since my 14 years old, from game development, mobile development to web fullstack development. I have one year of experience working as a freelancer in frontend projects with React. I'm self-taught and former Platzi student.
 
-Check my awesome [portfolio](https://portfolio-edgeorgie.vercel.app/).
+Check my [portfolio](https://portfolio-edgeorgie.vercel.app/).
 
 * 🌍  I'm based in Barranquilla, Colombia.
 * ✉️  You can contact me at [ed.jorge1122@gmail.com](mailto:ed.jorge1122@gmail.com)
