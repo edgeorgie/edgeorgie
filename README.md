@@ -14,6 +14,10 @@ Check my [portfolio](https://portfolio-edgeorgie.vercel.app/).
 * 🤝  I'm open to collaborating on Javascript projects, especially, with React.
 * ⚡  I never stop learning and creating.
 
+"If you can't explain it simply, you don't understand it well enough."
+
+- Albert Einstein 🖋.
+
 <a href="https://www.twitter.com/edgeorgie_" target="_blank" rel="noreferrer"><img
 src="https://img.shields.io/twitter/follow/edgeorgie_?logo=twitter&style=for-the-badge&color=6366f1&labelColor=0f172a"
 /></a>
