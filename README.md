@@ -1,7 +1,6 @@
-Hi 👋, my name is Edwin
-======================
+<img src="https://i.imgur.com/w9j8WQw.png" alt="Do something great banner" />
 
-Frontend Developer at Vansa & UI/UX Designer (freelance)
+Frontend Developer at Vansa & UI/UX Designer
 -----------------------------------
 
 I've been developing since my 14 years old, from game development, mobile development to web fullstack development. I have one year of experience working as a freelancer in frontend projects with React. I'm self-taught and former Platzi student.
@@ -70,12 +69,6 @@ src="https://img.shields.io/github/followers/edgeorgie?logo=github&style=for-the
 
 <p align="left"> <a href="https://www.behance.com/edgeorgie" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/danielcranney/readme-generator/main/public/icons/socials/behance.svg" width="32" height="32" /></a> <a href="https://www.dev.to/edgeorgie" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/danielcranney/readme-generator/main/public/icons/socials/devdotto.svg" width="32" height="32" /></a> <a href="https://discord.com/users/Georgie#7298" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/danielcranney/readme-generator/main/public/icons/socials/discord.svg" width="32" height="32" /></a> <a href="https://www.github.com/edgeorgie" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/danielcranney/readme-generator/main/public/icons/socials/github.svg" width="32" height="32" /></a> <a href="http://www.instagram.com/edgeorgie_" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/danielcranney/readme-generator/main/public/icons/socials/instagram.svg" width="32" height="32" /></a> <a href="https://www.linkedin.com/in/edgeorgie" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/danielcranney/readme-generator/main/public/icons/socials/linkedin.svg" width="32" height="32" /></a> <a href="http://www.medium.com/edgeorgie" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/danielcranney/readme-generator/main/public/icons/socials/medium.svg" width="32" height="32" /></a> <a href="https://www.twitter.com/edgeorgie_" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/danielcranney/readme-generator/main/public/icons/socials/twitter.svg" width="32" height="32" /></a></p>
 
-### Badges
-
-<b>My GitHub Stats</b>
-
-<a href="http://www.github.com/edgeorgie"><img src="https://github-readme-stats.vercel.app/api?username=edgeorgie&show_icons=true&hide=&count_private=true&title_color=a855f7&text_color=ffffff&icon_color=6366f1&bg_color=0f172a&hide_border=true&show_icons=true" alt="edgeorgie's GitHub stats" /></a>
-
-<a href="http://www.github.com/edgeorgie"><img src="https://github-readme-streak-stats.herokuapp.com/?user=edgeorgie&stroke=ffffff&background=0f172a&ring=a855f7&fire=a855f7&currStreakNum=ffffff&currStreakLabel=a855f7&sideNums=ffffff&sideLabels=ffffff&dates=ffffff&hide_border=true" /></a>
+<a href="http://www.github.com/edgeorgie"><img src="https://github-readme-stats.vercel.app/api?username=edgeorgie&show_icons=true&hide=&count_private=true&title_color=a855f7&text_color=ffffff&icon_color=6366f1&bg_color=0f172a&hide_border=true&show_icons=true" alt="edgeorgie's GitHub stats" /></a><a href="http://www.github.com/edgeorgie"><img src="https://github-readme-streak-stats.herokuapp.com/?user=edgeorgie&stroke=ffffff&background=0f172a&ring=a855f7&fire=a855f7&currStreakNum=ffffff&currStreakLabel=a855f7&sideNums=ffffff&sideLabels=ffffff&dates=ffffff&hide_border=true" /></a>
 
 <a href="http://www.github.com/edgeorgie"><img src="https://activity-graph.herokuapp.com/graph?username=edgeorgie&bg_color=0f172a&color=ffffff&line=6366f1&point=ffffff&area_color=0f172a&area=true&hide_border=true&custom_title=GitHub%20Commits%20Graph" alt="GitHub Commits Graph" /></a>
