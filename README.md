@@ -1,6 +1,6 @@
 <img src="https://i.imgur.com/w9j8WQw.png" alt="Do something great banner" />
 
-Frontend Developer at Vansa & UI/UX Designer
+Frontend Developer & UI/UX Designer
 -----------------------------------
 
 I've been developing since my 14 years old, from game development, mobile development to web fullstack development. I have one year of experience working as a freelancer in frontend projects with React. I'm self-taught and former Platzi student.
