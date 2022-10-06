@@ -3,7 +3,7 @@
 Frontend Developer & UI/UX Designer
 -----------------------------------
 
-I've been developing since my 14 years old, from game development, mobile development to web fullstack development. I have one year of experience working as a freelancer in frontend projects with React. I'm self-taught and former Platzi student.
+I am a highly motivated and forward-focused web/frontend developer with over 2 years of experience in this industry. With a history of initiative and reliability. Throughout my career, I have honed my web design, web development, and SEO skills. I am a capable and consistent problem solver, skilled at proficiently prioritizing and managing projects. I have 3 years of experience working as a freelancer in front-end projects with React/Next.js. I'm self-taught and former Platzi student.
 
 Check my [portfolio](https://portfolio-edgeorgie.vercel.app/).
 
