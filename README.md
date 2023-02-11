@@ -9,7 +9,7 @@ Check my [portfolio](https://portfolio-edgeorgie.vercel.app/).
 
 * 🌍  I'm based in Barranquilla, Colombia.
 * ✉️  You can contact me at [ed.jorge1122@gmail.com](mailto:ed.jorge1122@gmail.com)
-* 🚀  I'm currently working as a Freelancer.
+* 🚀  I'm currently working at Mercado Libre as Software Engineer.
 * 🤝  I'm open to collaborating on Javascript projects, especially, with React.
 * ⚡  I never stop learning and creating.
 
