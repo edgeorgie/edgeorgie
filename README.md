@@ -1,5 +1,3 @@
-<img src="https://i.imgur.com/w9j8WQw.png" alt="Do something great banner" />
-
 Frontend Developer & UI/UX Designer
 -----------------------------------
 
