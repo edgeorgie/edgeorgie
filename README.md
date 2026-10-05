@@ -6,7 +6,7 @@ I’m a **Software Engineer focused on AI-enabled full-stack development**, buil
 
 Currently working at **Mercado Libre**, where I design **AI workflows and agent-based systems** used by engineering teams to ship faster. My work spans **TypeScript, React, Next.js, Node.js, and LLM integrations**, focusing on developer productivity, system architecture, and high-performance user experiences.
 
-Over the past **5+ years**, I’ve built platforms used by **4.3M+ users across LATAM**, working across startups, freelance projects, and large-scale tech environments.
+Over the past **5+ years**, I’ve built platforms used by **5M+ users across LATAM**, working across startups, freelance projects, and large-scale tech environments.
 
 I’m particularly interested in:
 
