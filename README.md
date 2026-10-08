@@ -74,19 +74,84 @@ https://portfolio-edgeorgie.vercel.app/
 
 ## Featured Projects
 
-- **Tesla Clone** – React, Redux, Sass  
-- **Disney+ Clone** – React, Redux, Sass  
-- **GPT-3 Startup UI** – React, Sass  
-- **Modern Restaurant UI** – React, Sass  
-- **Google Docs Clone** – Next.js, Firebase  
+### ⭐ [crispy-profiling](https://github.com/edgeorgie/crispy-profiling) [![npm](https://img.shields.io/npm/v/crispy-profiling)](https://www.npmjs.com/package/crispy-profiling)
+
+Snapshot testing for React re-renders: finds avoidable renders, explains why, gives the fix and verifies it. CLI, MCP server for AI agents, GitHub Action.
+
+[Repository](https://github.com/edgeorgie/crispy-profiling) · [npm package](https://www.npmjs.com/package/crispy-profiling)
+
+### More projects
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+**[errorlens](https://github.com/edgeorgie/errorlens)**  
+Paste an error screenshot, get likely causes and fix steps (vision model, BYO key).  
+[Repo](https://github.com/edgeorgie/errorlens) · [Live demo](https://errorlens-one.vercel.app)
+
+</td>
+<td width="50%" valign="top">
+
+**[eval-lab](https://github.com/edgeorgie/eval-lab)**  
+Compare prompt variants against test cases with checks and an LLM judge.  
+[Repo](https://github.com/edgeorgie/eval-lab) · [Live demo](https://eval-lab-wheat.vercel.app)
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+**[triage-desk](https://github.com/edgeorgie/triage-desk)**  
+An agent that triages public GitHub issues: duplicates, labels, suggested reply.  
+[Repo](https://github.com/edgeorgie/triage-desk) · [Live demo](https://triage-desk-iota.vercel.app)
+
+</td>
+<td width="50%" valign="top">
+
+**[codereel](https://github.com/edgeorgie/codereel)**  
+Turn code snippets into animated videos with MP4 export, in the browser.  
+[Repo](https://github.com/edgeorgie/codereel) · [Live demo](https://codereel.vercel.app)
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+**[recall-local](https://github.com/edgeorgie/recall-local)**  
+Search your own notes by meaning, fully in the browser.  
+[Repo](https://github.com/edgeorgie/recall-local) · [Live demo](https://recall-local.vercel.app)
+
+</td>
+<td width="50%" valign="top">
+
+**[repoask](https://github.com/edgeorgie/repoask)**  
+Ask any public GitHub repo a question and get an answer citing exact lines.  
+[Repo](https://github.com/edgeorgie/repoask) · [Live demo](https://repoask.vercel.app)
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+**[issue-scout](https://github.com/edgeorgie/issue-scout)**  
+Find open-source issues you can actually fix, scored by repo health and contribution policy.  
+[Repo](https://github.com/edgeorgie/issue-scout) · [Live demo](https://issue-scout-seven.vercel.app)
+
+</td>
+<td width="50%" valign="top">
+
+</td>
+</tr>
+</table>
 
 ---
 
 ## Currently Building
 
-- AI-powered developer workflows  
-- Agent orchestration systems  
-- LLM-native web interfaces  
+- 🤖 AI agents and agent orchestration  
+- 🛠️ Developer tooling and AI-powered developer workflows  
+- ⚡ Performance: deterministic, reproducible render profiling for React  
 
 ---
 
@@ -105,13 +170,5 @@ https://portfolio-edgeorgie.vercel.app/
 ## GitHub Stats
 
 <a href="https://github.com/edgeorgie">
-<img src="https://github-readme-stats.vercel.app/api?username=edgeorgie&show_icons=true&count_private=true&title_color=a855f7&text_color=ffffff&icon_color=6366f1&bg_color=0f172a&hide_border=true" />
-</a>
-
-<a href="https://github.com/edgeorgie">
-<img src="https://github-readme-streak-stats.herokuapp.com/?user=edgeorgie&stroke=ffffff&background=0f172a&ring=a855f7&fire=a855f7&currStreakNum=ffffff&currStreakLabel=a855f7&sideNums=ffffff&sideLabels=ffffff&dates=ffffff&hide_border=true" />
-</a>
-
-<a href="https://github.com/edgeorgie">
-<img src="https://activity-graph.herokuapp.com/graph?username=edgeorgie&bg_color=0f172a&color=ffffff&line=6366f1&point=ffffff&area=true&hide_border=true" />
+<img src="https://github-readme-stats.vercel.app/api?username=edgeorgie&show_icons=true&count_private=true&title_color=a855f7&text_color=ffffff&icon_color=6366f1&bg_color=0f172a&hide_border=true" alt="GitHub stats" />
 </a>
