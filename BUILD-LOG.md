@@ -28,6 +28,21 @@ Getting it *publicly* reachable is where I stalled. I went through Vercel, Railw
 
 The last piece worth writing up: I benchmarked triage-desk's fallback heuristic (the path that runs when no LLM key is configured) against 18 self-labeled synthetic issues. 83.3% (15/18) on both `kind` and `priority` classification, same three misses for both since they're coupled. I expected something cleaner. The actual confusion matrix is more interesting than the number: one issue titled "...or a bug?" got classified as a bug purely because the literal substring "bug" appears before the question-detection branch runs in the if/else chain — a rhetorical mention of the word outranks the actual question structure. A paraphrased duplicate issue was missed entirely by the Jaccard token-overlap duplicate detector, while a near-verbatim duplicate was caught — the detector is brittle to rewording, not just noise-sensitive. None of this is a "needs more training data" problem, it's a few lines of ordering and a weak similarity metric. Worth fixing, but the number and failure modes here are reported as measured, not rounded up. ([ACCURACY.md](https://github.com/edgeorgie/triage-desk/blob/main/ACCURACY.md), [PR #28](https://github.com/edgeorgie/triage-desk/pull/28))
 
+## How this was actually built
+
+I used an AI coding agent (Claude Code) heavily across all three repos — for
+scaffolding, for the TypeScript/React boilerplate, and for a first draft of
+most of the prose in this log and the READMEs. I'm saying that plainly instead
+of leaving it to be inferred, because it's also the thing being hired for:
+agent-driven engineering. What's mine, specifically: the architecture choices
+(TF-IDF over a browser transformer for the headless MCP server; stateless HTTP
+sessions on Vercel; the webhook-vs-click-triggered distinction), the three
+actual root causes behind the Vercel deployment failures above, reading and
+fixing the `import.meta.url` symlink bug once CI caught it, and the benchmark
+numbers and their failure-mode analysis. None of that is generated text — it's
+checkable against the linked PRs, commits, and CI runs, independent of who
+typed the first draft of a sentence describing it.
+
 ## Why these three exist
 
 triage-desk, eval-lab, and repoask-mcp are the same idea I keep coming back
