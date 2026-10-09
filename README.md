@@ -11,4 +11,4 @@ Software engineer building AI-native, agent-driven tooling — agent loops, MCP 
 - **[repoask-mcp](https://github.com/edgeorgie/repoask-mcp)** — MCP server (official `@modelcontextprotocol/sdk`): ask a public GitHub repo a question, get line-cited answers. Tested by a real MCP client over stdio.
 - **[crispy-profiling](https://github.com/edgeorgie/crispy-profiling)** — npm package: deterministic React re-render profiler with CLI, GitHub Action, MCP server and Agent Skill.
 
-[GitHub activity](https://github.com/edgeorgie?tab=repositories) · [LinkedIn](https://www.linkedin.com/in/edgeorgie)
+[GitHub activity](https://github.com/edgeorgie?tab=repositories) · [LinkedIn](https://www.linkedin.com/in/edgeorgie) · [Build log](./BUILD-LOG.md)
