@@ -1,6 +1,6 @@
 # Edwin Jorge
 
-**Now — 2026-10-09:** Shipping an agent-native portfolio: [triage-desk](https://github.com/edgeorgie/triage-desk) (webhook-triggered GitHub triage bot, GITHUB_TOKEN-only writes), [eval-lab](https://github.com/edgeorgie/eval-lab) (installable CLI + GitHub Action that gates CI on prompt-variant evals, now also dogfooded to grade triage-desk's own logic), and [repoask-mcp](https://github.com/edgeorgie/repoask-mcp) (an MCP server over stdio with real client-tested tool calls).
+**Now:** Shipping an agent-native portfolio: [triage-desk](https://github.com/edgeorgie/triage-desk) (webhook-triggered GitHub triage bot, GITHUB_TOKEN-only writes), [eval-lab](https://github.com/edgeorgie/eval-lab) (installable CLI + GitHub Action that gates CI on prompt-variant evals, now also dogfooded to grade triage-desk's own logic), and [repoask-mcp](https://github.com/edgeorgie/repoask-mcp) (an MCP server over stdio with real client-tested tool calls).
 
 Software engineer building AI-native, agent-driven tooling — agent loops, MCP servers, eval harnesses — alongside full-stack work (TypeScript/React/Next.js/Node) at Mercado Libre.
 
