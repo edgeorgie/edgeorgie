@@ -43,4 +43,4 @@ move faster across all of that surface area, not the whole job.
   npm package: deterministic React re-render profiler with CLI, GitHub
   Action, MCP server, and Agent Skill.
 
-[Portfolio](https://edgeorgie.vercel.app) · [GitHub activity](https://github.com/edgeorgie?tab=repositories) · [LinkedIn](https://www.linkedin.com/in/edgeorgie) · [Build log](./BUILD-LOG.md)
+[Portfolio](https://www.itsedgeorgie.dev/) · [GitHub activity](https://github.com/edgeorgie?tab=repositories) · [LinkedIn](https://www.linkedin.com/in/edgeorgie) · [Build log](./BUILD-LOG.md)
