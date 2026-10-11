@@ -1,10 +1,6 @@
 # Edwin Jorge
 
-Software engineer, full-stack web at the core, with production experience
-extending into native mobile, smart TV, and OTT casting. 5+ years shipping
-scalable platforms in TypeScript/React/Next.js/Node — currently at Mercado
-Libre, where AI-assisted and agent-based workflows are one tool I use to
-move faster across all of that surface area, not the whole job.
+Software Engineer with 5+ years of production experience, full-stack web at the core, and hands-on experience across native mobile, Smart TV, and OTT casting. I build scalable applications using TypeScript, React, Next.js, and Node.js, with a strong focus on performance, architecture, and user experience. Currently at Mercado Libre, working across complex, high-traffic platforms serving millions of users across LATAM. I leverage AI-assisted development and agent-based workflows to accelerate engineering, improve execution, and build AI-enabled products. Dual degrees in Electronic Engineering and Software Development.
 
 ## By the numbers (Mercado Libre, Nov 2022–present)
 
