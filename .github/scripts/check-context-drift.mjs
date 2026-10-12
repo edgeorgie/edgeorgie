@@ -56,10 +56,18 @@ import { parse as parseYaml } from "yaml";
 
 const REPO = process.env.GITHUB_REPOSITORY ?? "edgeorgie/edgeorgie";
 const BRANCH = "main";
-const WORKFLOW_PATH = new URL(
-  "../workflows/verify.yml",
-  import.meta.url,
-);
+// Taken from the environment so this script can be RUN from a directory that
+// is not the repository checkout. That matters because its one dependency
+// (`yaml`) must be installed outside the workspace: `npm install` in the
+// checkout creates ./node_modules, and the lychee step globs './**/*.md', so
+// dependency READMEs would be link-checked and would fail the job on their own
+// links — which is exactly what happened on this workflow's first real run.
+// Node's ESM resolver walks up from the SCRIPT's location, not the cwd
+// (verified: NODE_PATH has no effect on ESM imports), so the script is copied
+// next to the installed module and told where the workflow is.
+const WORKFLOW_PATH = process.env.VERIFY_WORKFLOW_PATH
+  ? new URL(`file://${process.env.VERIFY_WORKFLOW_PATH}`)
+  : new URL("../workflows/verify.yml", import.meta.url);
 
 // The job whose reported context is (and must remain) the required check.
 const GATE_JOB_ID = "verify";
