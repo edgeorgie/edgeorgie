@@ -1,0 +1,5 @@
+# `.github/workflows/verify.yml` installs `yaml` on the fly for the
+# required-context drift check (`npm install --no-save`). This repo carries no
+# package.json by design — it is prose, not a package — so the install lands
+# here and must never be committed.
+node_modules/
