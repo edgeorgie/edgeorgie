@@ -161,6 +161,133 @@ if (gateJob.strategy?.matrix !== undefined) {
   );
 }
 
+// ---------------------------------------------------------------------------
+// STEP level. The checks above are all JOB level, and that was a real hole.
+// ---------------------------------------------------------------------------
+//
+// Measured against the revision before this block, with every assertion above
+// passing and the reported context name identical in all three cases:
+//
+//   - if: false              on the gate's only real step  → exit 0, ACCEPTED
+//   - continue-on-error: true on the same step             → exit 0, ACCEPTED
+//   fail: false              on the lychee action          → exit 0, ACCEPTED
+//
+// The discriminating controls, run in the same probe: a job-level `name:` and a
+// job-level `if:` were both correctly REFUSED. So the guard was not broken — it
+// was checking the job and ignoring the steps, which is where this workflow's
+// gate actually lives. `verify` has exactly one substantive step, so disarming
+// that step disarms the entire required check on this repository's `main`.
+//
+// A step-level `if:` is the worse of the three because it does not skip the
+// JOB: the job runs, succeeds, reports `verify` green, and the work never
+// happened.
+const steps = gateJob.steps;
+if (!Array.isArray(steps)) {
+  // Fail CLOSED. `steps:` deleted or replaced by something this parser does
+  // not resolve to a sequence means the step-level assertions below did not
+  // run — which is unverified, not clean. A bare `if (Array.isArray(...))`
+  // with no `else` is the exact vacuous-pass shape this guard exists to catch.
+  fail(
+    `verify.yml's \`${GATE_JOB_ID}:\` job has no \`steps:\` sequence (got ` +
+      `${steps === undefined ? "nothing" : typeof steps}). The gate's steps ` +
+      "are where it can be disarmed without changing its context name, so " +
+      "an unreadable step list is unverified rather than clean.",
+  );
+}
+
+const conditionalSteps = steps.filter(
+  (step) =>
+    step !== null &&
+    typeof step === "object" &&
+    !Array.isArray(step) &&
+    "if" in step &&
+    step.if !== null &&
+    step.if !== undefined,
+);
+if (conditionalSteps.length > 0) {
+  fail(
+    `verify.yml's \`${GATE_JOB_ID}:\` job has ${conditionalSteps.length} ` +
+      `conditional step(s) (\`if: ${conditionalSteps
+        .map((step) => String(step.if))
+        .join("`, `if: ")}\`).\n\n` +
+      "A skipped STEP does not skip the job. The job runs, SUCCEEDS, and " +
+      `reports \`${GATE_JOB_ID}\` green with that step's work never ` +
+      "performed — the context name is unchanged and every job-level " +
+      "assertion above still passes. This job has one substantive step, so " +
+      "a condition on it disarms the entire merge gate.\n\n" +
+      "Put the condition inside the command, or move the step to a job that " +
+      "is not required.",
+  );
+}
+
+const excusedSteps = steps.filter(
+  (step) =>
+    step !== null &&
+    typeof step === "object" &&
+    !Array.isArray(step) &&
+    "continue-on-error" in step &&
+    step["continue-on-error"] !== false,
+);
+if (excusedSteps.length > 0) {
+  fail(
+    `verify.yml's \`${GATE_JOB_ID}:\` job has ${excusedSteps.length} step(s) ` +
+      "with `continue-on-error` set. A failing step that is excused does not " +
+      "fail the job, so the required context reports green regardless — with " +
+      "no change to any context name.",
+  );
+}
+
+// `fail: false` on lychee-action. This is not a generic YAML property: it is
+// THIS action's documented switch between "report findings" and "fail the
+// job", and `verify`'s only real step is a lychee invocation.
+//
+// Read from the action's own `action.yml` rather than assumed: `fail` is
+// declared `default: true, required: false`
+// (lycheeverse/lychee-action action.yml, the `fail` input). An earlier draft of
+// this comment claimed the default was FALSE and justified the check on that
+// basis — wrong, and checked before shipping rather than after. The default
+// being true is why OMITTING `fail` is safe here, so the check demands only
+// that it is not explicitly falsified; requiring the literal `true` would
+// reject a correct workflow that simply relies on the documented default.
+for (const [index, step] of steps.entries()) {
+  if (
+    step === null ||
+    typeof step !== "object" ||
+    Array.isArray(step) ||
+    typeof step.uses !== "string" ||
+    !step.uses.startsWith("lycheeverse/lychee-action")
+  ) {
+    continue;
+  }
+  const withBlock =
+    step.with !== null && typeof step.with === "object" && !Array.isArray(step.with)
+      ? step.with
+      : {};
+  // GitHub Actions inputs are strings, so a workflow may write `fail: false`
+  // (parsed as a boolean by `yaml`) or `fail: "false"`. Both disarm the step.
+  const failInput = withBlock.fail;
+  const disarmed = failInput === false || failInput === "false";
+  if (disarmed) {
+    fail(
+      `verify.yml's \`${GATE_JOB_ID}:\` job runs ${step.uses} at step ` +
+        `${index + 1} with \`fail: ${JSON.stringify(failInput)}\`.\n\n` +
+        "`fail` is lychee-action's switch between reporting findings and " +
+        "failing the job (its `action.yml` declares `default: true`). With " +
+        "it explicitly off, broken links are printed and " +
+        `\`${GATE_JOB_ID}\` still reports SUCCESS: the required check on ` +
+        "`main` becomes decorative with its context name unchanged.\n\n" +
+        "Remove the override (the default fails the job), or move the step " +
+        "to a job that is not required.",
+    );
+  }
+}
+
+console.log(
+  `✓ \`${GATE_JOB_ID}:\`'s ${steps.length} step(s) carry no \`if:\`, no ` +
+    "`continue-on-error`, and no lychee step disables `fail`, so the gate " +
+    "can still report red",
+);
+
 console.log(
   `✓ verify.yml still declares \`${GATE_JOB_ID}:\` with no job-level ` +
     "`name:`, no `continue-on-error`, no job-level `if:` and no matrix, so it " +
