@@ -5,12 +5,10 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
-  # The gate's stated purpose is catching link ROT, and rot is not an event in
-  # this repository. On push/PR alone it only ever catches a link the author
-  # just broke — never a project repo that was renamed, made private or deleted
-  # months after the README last changed, which is the far likelier way a
-  # profile README goes stale. A daily run is what makes this a rot detector
-  # rather than a typo checker.
+  # The gate's purpose is catching link ROT, and rot is not an event in this
+  # repository: on push/PR alone it only catches a link the author just broke,
+  # never a project repo renamed or made private months after the README last
+  # changed. The daily run is what makes this a rot detector.
   schedule:
     - cron: "41 7 * * *"
   workflow_dispatch:
@@ -18,54 +16,38 @@ on:
 permissions:
   contents: read
 
-# A scheduled run and a push can otherwise overlap and spend two sets of
-# requests against the same external hosts for the same answer.
 concurrency:
   group: verify-${{ github.ref }}
-  cancel-in-progress: true
+  # Only cancel superseded PR runs. `verify` is a REQUIRED status check on
+  # `main` with enforce_admins: true, so a cancelled run on `main` leaves that
+  # commit with no completed result — and a burst of pushes would cancel the
+  # scheduled rot run too, which is the one nothing else replaces.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      # This repo's whole payload is prose plus outbound links to the project repos it
-      # advertises, so the only thing worth gating on is whether those links resolve. A
-      # broken link in a profile README is the exact defect a reviewer notices first.
+      # This repo's payload is prose plus outbound links to the projects it
+      # advertises, so link resolution is the only thing worth gating on.
       #
-      # Flags, in order:
-      #
-      #   --no-progress        CI log noise.
-      #   --max-concurrency 4  Stay well under GitHub's unauthenticated rate budget,
-      #                        which is shared across the runner NAT pool.
-      #   --accept             REPLACES lychee's default accepted set rather than adding
-      #                        to it (the default is 100..=103 and 200..=299 — see
-      #                        lychee-lib/src/types/status_code_selector.rs,
-      #                        `default_accepted`). The previous `200,206,429` therefore
-      #                        silently narrowed success to three exact codes, so a
-      #                        healthy endpoint answering 204 No Content, or a redirect
-      #                        chain resolving through a 2xx outside that list, failed
-      #                        the gate. Spelled here as the real default range plus the
-      #                        one extra actually wanted: 429, because rate limiting is
-      #                        the shared runner IP's fault, not a dead link. 403 is
-      #                        deliberately NOT accepted — that is how a repo which has
-      #                        genuinely gone private answers, which is exactly the rot
-      #                        this gate is for.
-      #   --max-retries /      A third-party 503 must not red a REQUIRED check on a
-      #   --retry-wait-time    branch with enforce_admins: true — that combination means
-      #                        a transient blip on someone else's server blocks merging
-      #                        here with no override available.
-      #   --cache /            A daily schedule plus every push would otherwise re-probe
-      #   --max-cache-age 1d   every link from scratch. 1d is not longer than the
-      #                        schedule interval, so the daily rot check is never served
-      #                        a cached answer — the cache only absorbs repeated pushes
-      #                        within the same day.
-      #   --exclude linkedin   LinkedIn answers every non-browser client with HTTP 999 by
-      #                        design (an authwall, not a dead link), so it can never
-      #                        pass and would make this gate permanently red for a reason
-      #                        no change can fix. Excluding the host is correct; globally
-      #                        accepting 999 would hide a real 999 elsewhere.
+      #   --accept        REPLACES lychee's default accepted set rather than
+      #                   extending it (default: 100..=103 and 200..=299, see
+      #                   lychee-lib/src/types/status_code_selector.rs,
+      #                   `default_accepted`), so the earlier `200,206,429`
+      #                   narrowed success to three exact codes and failed a
+      #                   healthy 204. 429 is added because rate limiting is
+      #                   the shared runner IP's fault; 403 stays rejected
+      #                   because that is how a repo gone private answers,
+      #                   which is the rot being looked for.
+      #   --max-retries   `verify` is required on a branch with
+      #                   enforce_admins: true, so an unretried third-party 503
+      #                   would block merging with no override.
+      #   --exclude       LinkedIn answers non-browser clients with HTTP 999 by
+      #                   design, so it can never pass; excluding the host beats
+      #                   globally accepting 999 and hiding a real one.
       - name: Check markdown links
         uses: lycheeverse/lychee-action@v2
         with:
@@ -75,14 +57,10 @@ jobs:
             --accept 200..=299,429
             --max-retries 3
             --retry-wait-time 5
-            --cache
-            --max-cache-age 1d
-            --exclude-path .git
             --exclude 'linkedin\.com'
             './**/*.md'
           fail: true
         env:
-          # lychee uses this for api.github.com links, which otherwise get 60 req/hr per
-          # SOURCE IP on a NAT pool shared with the whole platform -- a 403 the repo never
-          # spent a request to earn. contents:read is all that is needed.
+          # For api.github.com links, which otherwise get 60 req/hr per source
+          # IP on a NAT pool shared with the whole platform.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
