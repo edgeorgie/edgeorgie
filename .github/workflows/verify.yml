@@ -1,0 +1,37 @@
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # This repo's whole payload is prose plus outbound links to the project repos it
+      # advertises, so the only thing worth gating on is whether those links resolve. A
+      # broken link in a profile README is the exact defect a reviewer notices first.
+      - name: Check markdown links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          # --no-progress: CI log noise. --max-concurrency: stay well under GitHub's
+          # unauthenticated rate budget, which is shared across the runner NAT pool.
+          args: >-
+            --no-progress
+            --max-concurrency 4
+            --accept 200,206,429
+            --exclude-path .git
+            './**/*.md'
+          fail: true
+        env:
+          # lychee uses this for api.github.com links, which otherwise get 60 req/hr per
+          # SOURCE IP on a NAT pool shared with the whole platform -- a 403 the repo never
+          # spent a request to earn. contents:read is all that is needed.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
