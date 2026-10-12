@@ -23,11 +23,16 @@ jobs:
         with:
           # --no-progress: CI log noise. --max-concurrency: stay well under GitHub's
           # unauthenticated rate budget, which is shared across the runner NAT pool.
+          # --exclude linkedin.com: LinkedIn answers every non-browser client with HTTP
+          # 999 by design (an authwall, not a dead link), so it can never pass and would
+          # make this gate permanently red for a reason no change can fix. Excluding the
+          # host is correct; globally accepting 999 would hide a real 999 elsewhere.
           args: >-
             --no-progress
             --max-concurrency 4
             --accept 200,206,429
             --exclude-path .git
+            --exclude 'linkedin\.com'
             './**/*.md'
           fail: true
         env:

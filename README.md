@@ -19,7 +19,7 @@ Software Engineer with 5+ years of production experience, full-stack web at the 
 **Core platform work**
 - Full-stack features across web, native mobile, and smart TV at Mercado
   Libre — see metrics above. (Proprietary; not public, but the case study
-  and reliability write-ups in [my portfolio](https://edgeorgie.vercel.app)
+  and reliability write-ups in [my portfolio](https://www.itsedgeorgie.dev/)
   cite real numbers and sources.)
 
 **AI-agent systems (a standout specialty, not the whole story)**
