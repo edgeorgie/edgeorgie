@@ -146,8 +146,26 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npm install --no-save --ignore-scripts yaml@^2
-          node .github/scripts/check-context-drift.mjs
+          # Installed and RUN outside the workspace. `npm install` in the
+          # checkout creates ./node_modules, and the lychee step below globs
+          # './**/*.md' — which then picks up dependency READMEs and fails the
+          # job on THEIR links. The first real run of this workflow did exactly
+          # that: it reported a missing `node_modules/yaml/docs/CONTRIBUTING.md`
+          # and a 403 from npmjs.com, neither of which is this repository's
+          # content nor this repository's problem. Keeping the install out of
+          # the workspace is more robust than an --exclude-path that a future
+          # glob change could silently outrun.
+          #
+          # The script is COPIED next to the installed module because Node's
+          # ESM resolver walks up from the script's own location, not the cwd —
+          # NODE_PATH has no effect on ESM imports (verified). The workflow path
+          # is passed explicitly since the script is no longer inside the repo.
+          deps="$RUNNER_TEMP/drift-deps"
+          mkdir -p "$deps"
+          npm install --prefix "$deps" --no-save --ignore-scripts yaml@^2
+          cp .github/scripts/check-context-drift.mjs "$deps/"
+          VERIFY_WORKFLOW_PATH="$PWD/.github/workflows/verify.yml" \
+            node "$deps/check-context-drift.mjs"
 
       # The network half. Same flags as before, minus the ones that were
       # load-bearing only because this job gated merging.

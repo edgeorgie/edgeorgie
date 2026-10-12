@@ -1,5 +1,8 @@
-# `.github/workflows/verify.yml` installs `yaml` on the fly for the
-# required-context drift check (`npm install --no-save`). This repo carries no
-# package.json by design — it is prose, not a package — so the install lands
-# here and must never be committed.
+# Kept as a safety net only. The required-context drift check installs its one
+# dependency into RUNNER_TEMP rather than the workspace (see
+# .github/workflows/verify.yml), precisely so dependency READMEs never land in
+# the link checker's './**/*.md' glob — this workflow's first real run failed on
+# `node_modules/yaml/docs/CONTRIBUTING.md` and an npmjs.com 403, neither of
+# which is this repository's content. If anyone ever runs a bare `npm install`
+# here, this stops the same failure recurring.
 node_modules/
