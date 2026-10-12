@@ -35,21 +35,50 @@
 // parse. Quoting, key order, flow vs block style, the explicit `? key` form,
 // anchors, aliases and merge keys all stop being special cases.
 //
-// WHAT THIS CANNOT DO ON THIS REPOSITORY, AND WHY IT WARNS INSTEAD OF PASSING
+// HOW THE LIVE HALF READS PROTECTION WITHOUT `administration` PERMISSION
 //
 // `main` here uses CLASSIC branch protection, not a ruleset
-// (`GET /repos/{o}/{r}/rules/branches/main` returns `[]`). Classic protection
-// is readable only with `administration` permission, which `GITHUB_TOKEN`
-// cannot be granted — that is precisely why the sibling repo migrated `main` to
-// a ruleset: to make the live state observable from inside a workflow.
+// (`GET /repos/{o}/{r}/rules/branches/main` returns `[]`).
+// `GET /repos/{o}/{r}/branches/main/protection/required_status_checks` — the
+// endpoint an earlier revision of this script used — needs `administration`
+// read, which `GITHUB_TOKEN` cannot be granted. That revision therefore
+// warned and exited 0 on EVERY real run, and the warning was indistinguishable
+// from the two states that actually matter: a wedged branch, and protection
+// deleted outright. A gate that is green for a reason unrelated to the change
+// under review is one nobody reads.
 //
-// So under `GITHUB_TOKEN` this script CANNOT read the required contexts, and it
-// says so and exits 0 with a warning rather than either (a) passing silently,
-// which would make it decorative, or (b) failing every run, which would train
-// the reader to ignore a job that is red by design. It becomes a real assertion
-// the moment it is given a token that can read protection, or once this branch
-// is migrated to a ruleset. The local half — "the job id the context names must
-// match still exists" — is asserted unconditionally and needs no credential.
+// The fix is an endpoint, not a credential. `GET /repos/{o}/{r}/branches/main`
+// embeds the required contexts in `protection.required_status_checks.contexts`
+// and needs only repository READ. Verified against three real repositories,
+// UNAUTHENTICATED (strictly weaker than this workflow's `contents: read`):
+//
+//   edgeorgie/edgeorgie  HTTP 200  protected=true   contexts=["verify"]
+//   edgeorgie/agentlens  HTTP 200  protected=true   contexts=[]        (ruleset)
+//   edgeorgie/todo       HTTP 200  protected=false  contexts=[]
+//
+// while `/protection/required_status_checks` answered HTTP 401 on all three.
+// So the live assertion is now REAL under the workflow's own credentials.
+//
+// Rulesets express the same requirement in a different shape and report
+// nothing under `protection` (see `agentlens` above, which is ruleset-governed
+// and reads back `contexts: []`). Both are therefore consulted and their
+// contexts unioned, so this keeps working if `main` is ever migrated.
+//
+// WHAT HAPPENS WHEN THE READ GENUINELY FAILS
+//
+// It exits NON-ZERO with "could not verify", because an unverifiable claim is
+// not a satisfied one. The one exception is rate limiting, which is neither a
+// permissions problem nor a drift signal: an unauthenticated api.github.com
+// call gets 60 requests/hour PER SOURCE IP, and GitHub-hosted runners share a
+// NAT pool, so a job can be refused having made no call of its own. That is
+// distinguished from a real permissions refusal by the `x-ratelimit-remaining`
+// response header — `remaining: 0` means "wait or add a token", anything else
+// on a 403 means "this credential is not allowed to read this" — and the two
+// get different messages because they need different responses.
+//
+// The token is OPTIONAL so a local run works with no credential at all; it is
+// passed in CI only to spend the authenticated 5000/hr quota instead of the
+// shared-IP 60/hr one.
 
 import { readFileSync } from "node:fs";
 import { parse as parseYaml } from "yaml";
@@ -237,18 +266,65 @@ if (excusedSteps.length > 0) {
   );
 }
 
-// `fail: false` on lychee-action. This is not a generic YAML property: it is
-// THIS action's documented switch between "report findings" and "fail the
-// job", and `verify`'s only real step is a lychee invocation.
+// The gate must actually RUN its assertion. Every check above can pass on a
+// job whose steps are `checkout` and nothing else: the context name is
+// correct, no step is conditional or excused, and the job reports green having
+// asserted nothing. That is the empty-gate shape, and it is reachable by
+// DELETING a line rather than adding one, which no "is this flag set" check
+// can see.
+//
+// `verify`'s assertion is `node .github/scripts/check-local-links.mjs`. This
+// requires that some step still invokes it. Matching on the script path rather
+// than on step count or step name, because a renamed step is fine and an
+// extra step is fine — what is not fine is the assertion being gone.
+const GATE_ASSERTION = ".github/scripts/check-local-links.mjs";
+
+const runsAssertion = steps.some(
+  (step) =>
+    step !== null &&
+    typeof step === "object" &&
+    !Array.isArray(step) &&
+    typeof step.run === "string" &&
+    step.run.includes(GATE_ASSERTION),
+);
+
+if (!runsAssertion) {
+  fail(
+    `verify.yml's \`${GATE_JOB_ID}:\` job no longer runs \`${GATE_ASSERTION}\`.\n\n` +
+      "That script IS the gate's assertion. Without it the job checks out the " +
+      "repository, does nothing, and reports `" +
+      GATE_JOB_ID +
+      "` GREEN — a required check that passes unconditionally, with its " +
+      "context name unchanged and every other assertion in this guard still " +
+      "satisfied. An empty gate is reached by deleting a line, not by adding " +
+      "a suspicious flag.\n\n" +
+      `steps present: ${steps
+        .map((step) =>
+          step && typeof step === "object" && !Array.isArray(step)
+            ? (step.name ?? step.uses ?? step.run ?? "<unnamed>")
+            : String(step),
+        )
+        .map((label) => String(label).split("\n")[0].slice(0, 60))
+        .join(" | ")}\n\n` +
+      "If the gate's assertion legitimately moved or was renamed, update " +
+      "`GATE_ASSERTION` in this guard in the SAME change.",
+  );
+}
+
+// `fail: false` on lychee-action. The gate does not currently use lychee — its
+// assertion is the Node script above, specifically so the required check does
+// not depend on a third-party release asset being downloadable. This check
+// stays because reintroducing a lychee step into the gate is a plausible
+// future edit, and `fail: false` is the one-word way to disarm it.
 //
 // Read from the action's own `action.yml` rather than assumed: `fail` is
 // declared `default: true, required: false`
 // (lycheeverse/lychee-action action.yml, the `fail` input). An earlier draft of
 // this comment claimed the default was FALSE and justified the check on that
 // basis — wrong, and checked before shipping rather than after. The default
-// being true is why OMITTING `fail` is safe here, so the check demands only
-// that it is not explicitly falsified; requiring the literal `true` would
-// reject a correct workflow that simply relies on the documented default.
+// being true is why OMITTING `fail` is safe, so the check demands only that it
+// is not explicitly falsified; requiring the literal `true` would reject a
+// correct workflow that simply relies on the documented default.
 for (const [index, step] of steps.entries()) {
   if (
     step === null ||
@@ -284,8 +360,8 @@ for (const [index, step] of steps.entries()) {
 
 console.log(
   `✓ \`${GATE_JOB_ID}:\`'s ${steps.length} step(s) carry no \`if:\`, no ` +
-    "`continue-on-error`, and no lychee step disables `fail`, so the gate " +
-    "can still report red",
+    "`continue-on-error`, and no lychee step disables `fail`, and the job " +
+    `still runs \`${GATE_ASSERTION}\`, so the gate can still report red`,
 );
 
 console.log(
@@ -299,66 +375,170 @@ console.log(
 // ---------------------------------------------------------------------------
 
 const headers = { Accept: "application/vnd.github+json" };
+// OPTIONAL on purpose: with no token this still works locally, it just spends
+// the 60/hr-per-source-IP unauthenticated quota instead of 5000/hr.
 if (process.env.GITHUB_TOKEN) {
   headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
 }
 
+/** Exits non-zero because a check could not be PERFORMED. Distinct from drift. */
+function unverified(message) {
+  console.error(
+    `✗ required-context drift check COULD NOT VERIFY\n\n${message}\n\n` +
+      "  This is not a clean result. The local assertions above passed, but " +
+      "whether live protection still requires a context this workflow " +
+      `reports is UNKNOWN, so \`${GATE_JOB_ID}\` may already be wedged.`,
+  );
+  process.exit(1);
+}
+
 /**
- * GETs a path, retrying only transient failures. A 403/404 is an answer rather
- * than a blip, so it is returned instead of retried — on this repository a 403
- * is in fact the EXPECTED answer (see the header).
+ * GETs a path. Returns the parsed body on 200, and on failure classifies WHY,
+ * because "wait or add a token", "this credential may not read this" and
+ * "the resource is gone" need three different responses.
+ *
+ * 5xx and 429 are retried; a 403/404 is an answer rather than a blip. A 403 is
+ * split by `x-ratelimit-remaining`: GitHub answers 403 BOTH for "forbidden" and
+ * for "secondary rate limit", and on a shared runner NAT pool the latter can
+ * happen having made no call of our own.
  */
 async function get(path, attempts = 3) {
-  let last = "unknown error";
+  let last = { kind: "unknown", detail: "unknown error" };
   for (let attempt = 1; attempt <= attempts; attempt++) {
     let res;
     try {
       res = await fetch(`https://api.github.com${path}`, { headers });
     } catch (error) {
-      last = `network error: ${error?.message ?? error}`;
+      last = { kind: "network", detail: `network error: ${error?.message ?? error}` };
       if (attempt < attempts) {
         await new Promise((r) => setTimeout(r, attempt * 2000));
         continue;
       }
       break;
     }
+
     if (res.ok) return { ok: true, body: await res.json() };
-    last = `HTTP ${res.status} ${res.statusText}`;
-    if (res.status < 500 && res.status !== 429) return { ok: false, status: res.status, error: last };
+
+    const remaining = res.headers.get("x-ratelimit-remaining");
+    const reset = res.headers.get("x-ratelimit-reset");
+    const detail =
+      `HTTP ${res.status} ${res.statusText}` +
+      (remaining === null ? "" : ` (x-ratelimit-remaining: ${remaining})`);
+
+    // Rate limited: 403 or 429 with the budget actually exhausted.
+    if ((res.status === 403 || res.status === 429) && remaining === "0") {
+      const when = reset ? new Date(Number(reset) * 1000).toISOString() : "unknown";
+      last = {
+        kind: "ratelimit",
+        detail:
+          `${detail}; quota resets at ${when}. ` +
+          (process.env.GITHUB_TOKEN
+            ? "A token WAS supplied, so this is the authenticated quota."
+            : "No token was supplied, so this is the 60/hr-per-source-IP " +
+              "unauthenticated quota, shared across GitHub-hosted runners."),
+      };
+      if (attempt < attempts) {
+        await new Promise((r) => setTimeout(r, attempt * 5000));
+        continue;
+      }
+      break;
+    }
+
+    if (res.status === 403 || res.status === 401) {
+      return { ok: false, kind: "forbidden", status: res.status, detail };
+    }
+    if (res.status === 404) {
+      return { ok: false, kind: "missing", status: res.status, detail };
+    }
+
+    last = { kind: "http", detail };
+    if (res.status < 500) return { ok: false, ...last, status: res.status };
     if (attempt === attempts) break;
     await new Promise((r) => setTimeout(r, attempt * 2000));
   }
-  return { ok: false, error: last };
+  return { ok: false, ...last };
 }
 
-const protection = await get(
-  `/repos/${REPO}/branches/${BRANCH}/protection/required_status_checks`,
-);
+// `GET /branches/{branch}` needs only repository read and embeds the required
+// contexts. See the header for the three-repo verification of that claim.
+const branch = await get(`/repos/${REPO}/branches/${BRANCH}`);
 
-if (!protection.ok) {
-  // Expected under GITHUB_TOKEN: classic protection needs `administration`,
-  // which it cannot be granted. Warn rather than pass silently or fail daily.
-  console.warn(
-    `⚠ could not read live required status checks for ${REPO}@${BRANCH} ` +
-      `(${protection.error}).\n` +
-      "  This is EXPECTED under GITHUB_TOKEN: `main` here uses CLASSIC branch " +
-      "protection, which is readable only with `administration` permission " +
-      "that GITHUB_TOKEN cannot be granted. The local assertions above DID " +
-      "run; the live half did not, so this run has NOT confirmed that " +
-      `protection still requires \`${GATE_JOB_ID}\`.\n` +
-      "  To make this a real assertion: migrate `main` to a ruleset (as " +
-      "edgeorgie/agentlens did, which is readable with metadata:read), or run " +
-      "this step with a PAT/App token that has `administration: read`.",
-  );
-  process.exit(0);
+if (!branch.ok) {
+  if (branch.kind === "ratelimit") {
+    // The ONLY tolerated outcome: nothing is known about drift, but the cause
+    // is unrelated to this repository's configuration and retrying fixes it.
+    console.warn(
+      `⚠ rate limited reading ${REPO}@${BRANCH} (${branch.detail}).\n` +
+        "  The live half did NOT run. This is a shared-IP quota problem, not " +
+        "a drift signal and not a permissions problem, so it does not fail " +
+        "the job — but this run has NOT confirmed the live pairing.",
+    );
+    process.exit(0);
+  }
+  if (branch.kind === "missing") {
+    unverified(
+      `\`${BRANCH}\` does not exist in ${REPO} (${branch.detail}).\n\n` +
+        "  A 404 here is NOT a permissions problem — the read itself " +
+        "succeeded and reported no such branch. Either the default branch " +
+        "was renamed (in which case protection and this guard both need " +
+        "updating) or `GITHUB_REPOSITORY` is wrong.",
+    );
+  }
+  if (branch.kind === "forbidden") {
+    unverified(
+      `not permitted to read ${REPO}@${BRANCH} (${branch.detail}).\n\n` +
+        "  The rate-limit budget was NOT exhausted, so this is a real " +
+        "permissions refusal rather than throttling. `GET /repos/{o}/{r}/" +
+        "branches/{branch}` needs only repository read, so a refusal here " +
+        "means the token is scoped below `contents: read` or the repository " +
+        "is inaccessible to it.",
+    );
+  }
+  unverified(`could not read ${REPO}@${BRANCH}: ${branch.detail}`);
 }
 
-const required = protection.body?.contexts ?? [];
-if (!Array.isArray(required) || required.length === 0) {
+// Rulesets are the other way to express the same requirement, and they report
+// nothing under `protection`. Consulted so this keeps working after a
+// migration. A failure here is only fatal if classic protection ALSO came back
+// empty — otherwise the classic read already answered the question.
+const rules = await get(`/repos/${REPO}/rules/branches/${BRANCH}`);
+
+const classicContexts =
+  branch.body?.protection?.required_status_checks?.contexts ?? [];
+const rulesetContexts = Array.isArray(rules.body)
+  ? rules.body
+      .filter((rule) => rule?.type === "required_status_checks")
+      .flatMap((rule) => rule?.parameters?.required_status_checks ?? [])
+      .map((check) => check?.context)
+      .filter((context) => typeof context === "string")
+  : [];
+
+const required = [...new Set([...classicContexts, ...rulesetContexts])];
+
+if (required.length === 0) {
+  if (!rules.ok) {
+    unverified(
+      `classic protection on ${REPO}@${BRANCH} requires no status checks, and ` +
+        `the ruleset read failed (${rules.detail}), so the branch may be ` +
+        "governed by a ruleset this run could not see.",
+    );
+  }
+  // Both reads succeeded and both are empty. That is not an unverifiable
+  // claim — it is a verified, and very bad, answer.
   fail(
     `\`${BRANCH}\` protection requires NO status checks, so nothing gates the ` +
-      "branch and any commit can merge. Expected it to require " +
-      `\`${GATE_JOB_ID}\`.`,
+      "branch and any commit can merge.\n\n" +
+      `  Expected it to require \`${GATE_JOB_ID}\`. Both protection models were ` +
+      `read successfully: classic \`protection.required_status_checks.contexts\` ` +
+      `is [] and the ruleset list contributed no required check ` +
+      `(protected: ${JSON.stringify(branch.body?.protected ?? null)}).\n\n` +
+      "  This is what \"someone deleted branch protection\" looks like. " +
+      "Restore it:\n\n" +
+      `  gh api -X PUT repos/${REPO}/branches/${BRANCH}/protection \\\n` +
+      `    -F 'required_status_checks[strict]=true' \\\n` +
+      `    -f 'required_status_checks[contexts][]=${GATE_JOB_ID}' \\\n` +
+      "    -F 'enforce_admins=true' -F 'required_pull_request_reviews=null' \\\n" +
+      "    -F 'restrictions=null'",
   );
 }
 
@@ -382,7 +562,14 @@ if (unreportable.length > 0) {
   );
 }
 
+const source =
+  classicContexts.length > 0 && rulesetContexts.length > 0
+    ? "classic protection + ruleset"
+    : rulesetContexts.length > 0
+      ? "ruleset"
+      : "classic protection";
+
 console.log(
-  `✓ live protection on ${REPO}@${BRANCH} requires [${required.join(", ")}], ` +
-    `every one of which a job in verify.yml reports`,
+  `✓ live protection on ${REPO}@${BRANCH} requires [${required.join(", ")}] ` +
+    `(read from ${source}), every one of which a job in verify.yml reports`,
 );

@@ -1,8 +1,25 @@
-# Kept as a safety net only. The required-context drift check installs its one
-# dependency into RUNNER_TEMP rather than the workspace (see
-# .github/workflows/verify.yml), precisely so dependency READMEs never land in
-# the link checker's './**/*.md' glob — this workflow's first real run failed on
-# `node_modules/yaml/docs/CONTRIBUTING.md` and an npmjs.com 403, neither of
-# which is this repository's content. If anyone ever runs a bare `npm install`
-# here, this stops the same failure recurring.
+# Two separate reasons, because only one of them used to be true.
+#
+# 1. Dependencies do not belong in git. Uncontroversial.
+#
+# 2. It keeps a stray `npm install` out of the link checker's input set — but
+#    ONLY because the rot detector's input is now `.` rather than the glob
+#    './**/*.md'. lychee honours .gitignore for a DIRECTORY input and ignores
+#    it for an explicit glob. Measured on a checkout with node_modules
+#    present: `.` → 14 links, exit 0; './**/*.md' → 59 links, exit 2 on a
+#    dependency's own broken link, with this file in place and unchanged.
+#    Removing this file entirely made no difference to the glob run.
+#
+#    So while the workflow passed a glob, the previous version of this comment
+#    described a protection that did not operate. The workflow was changed to
+#    `.` and the claim is now load-bearing: if the input ever goes back to a
+#    glob, this stops working again and this comment becomes wrong again.
+#
+# The primary defence remains structural rather than this file: the drift
+# check installs its one dependency into RUNNER_TEMP, never the workspace, so
+# no node_modules exists in the checkout for either input to reach — this
+# workflow's first real run failed on `node_modules/yaml/docs/CONTRIBUTING.md`
+# and an npmjs.com 403, neither of which is this repository's content. The
+# required gate separately uses `git ls-files`, which an untracked path cannot
+# enter at all.
 node_modules/
