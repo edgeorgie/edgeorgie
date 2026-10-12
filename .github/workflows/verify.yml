@@ -293,11 +293,17 @@ jobs:
       # The proof it was not the closer is that #6 has zero comments, while this
       # step posts one BEFORE closing. So it had only ever passed vacuously.
       #
-      # It is now exercised for real against a purpose-filed issue with this
-      # exact title and label, and the run that closes it is cited in the PR
-      # that introduced this comment. Observed failing first (the step is a
-      # no-op when nothing matches) and then closing a real issue, rather than
-      # asserted.
+      # It is now exercised for real, in both directions, against a
+      # purpose-filed issue (#10) carrying this exact title and label:
+      #
+      #   run 38251476962  no matching open issue  → "nothing to close", exit 0
+      #   run 38251924817  #10 open                → commented, then closed
+      #
+      # and issue #10's own events read `closed … actor=github-actions[bot]`
+      # with one comment, where #6 read `actor=edgeorgie` with zero. The `else`
+      # branch exists so the negative case is visible in the log rather than
+      # being indistinguishable from a run that closed something — which is
+      # precisely how the #6 claim went unchallenged.
       - if: success()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
